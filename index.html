@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Calico Jack!</title>
+
+	<style>
+		/* CSS STYLES */
+
+		body {
+			background: url('assets/BG-Web.jpg') no-repeat top center #333;
+			margin: 0;
+			padding: 0;
+			text-align: center;
+		}
+
+		canvas {
+			margin: 11% auto 0 auto;
+			border: 10px solid #5e3015;
+		}
+	</style>
+	<script src="phaser.min.js"></script>
+</head>
+
+<body>
+	<script>
+		// JS CODE
+		let CalicoJackGame = {};
+
+		// Game Dimensions
+		const gameWidth = 960;
+		const gameHeight = 680;
+
+		CalicoJackGame.Boot = function (game) {};
+
+		CalicoJackGame.Boot.prototype = {
+			update: function () {
+				this.state.start('Preloader');
+			}
+		};
+
+		CalicoJackGame.Preloader = function (game) {
+			this.ready = false;
+		};
+
+		CalicoJackGame.Preloader.prototype = {
+			preload: function () {
+				this.game.add.text((gameWidth / 2) - 60, game.world.centerY - 20, 'Loading...', {
+					fill: '#FFF'
+				});
+
+				game.load.image('water', 'assets/tile_73.png');
+				game.load.spritesheet('player', 'assets/calico_jack.png', 113, 66);
+				game.load.spritesheet('enemy', 'assets/enemy_ship.png', 113, 66);
+				game.load.image('cannonball', 'assets/cannonBall.png');
+				game.load.spritesheet('boom', 'assets/boomExplode.png', 75, 75);
+				game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
+				game.load.image('brownBoxTextBg', 'assets/buttonLong_brown.png');
+				game.load.spritesheet('cannonTime', 'assets/cannonTime.png', 55, 40);
+
+				this.load.onLoadComplete.add(this.loadComplete, this);
+			},
+			loadComplete: function () {
+				this.ready = true;
+			},
+			update: function () {
+				if (this.ready === true) {
+					const wfconfig = {
+						active: function () {
+							game.state.start('StartScreen');
+						},
+						google: {
+							families: ['Shadows Into Light Two', 'Sunshiney']
+						}
+					};
+					WebFont.load(wfconfig);
+				}
+			}
+		};
+
+		CalicoJackGame.StartScreen = function (game) {};
+
+		let startText;
+		let startButton;
+		let creditText;
+
+		CalicoJackGame.StartScreen.prototype = {
+			create: function () {
+				startText = game.add.text(game.world.centerX, game.world.centerY - 20, 'Press Spacebar to Start');
+				startText.anchor.setTo(0.5, 0.5);
+				startText.font = 'Shadows Into Light Two';
+				startText.fontSize = 40;
+				startText.fill = '#FFFFFF';
+
+				startButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+				creditText = game.add.text(game.world.centerX, gameHeight - 16, 'All game assets downloaded from kenney.nl', {
+					fill: '#FFFFFF',
+					font: 'Arial',
+					fontSize: '14px'
+				});
+				creditText.anchor.setTo(0.5, 0.5);
+			},
+			update: function () {
+				if (startButton.isDown) {
+					game.state.start('Game');
+				}
+			}
+		}
+
+		CalicoJackGame.Game = function (game) {};
+
+		let waterBackground;
+		let calicoJack;
+		let pirateHunters;
+		let cannons;
+		let cannonTimeImg;
+		let enemyCannons;
+		let cannonTime = 0;
+		let boomEffects;
+		let damageText;
+		let brownBoxTextBg;
+		let damagePercentage = 0;
+		let damageTextString = 'Hull damage - '
+		let score = 0;
+		let scoreString = 'Pirate hunters - ';
+		let scoreText;
+		let firingTimer = 0;
+		let livingEnemies = [];
+
+		CalicoJackGame.Game.prototype = {
+			create: function () {
+				game.physics.startSystem(Phaser.Physics.ARCADE);
+				game.world.setBounds(0, 0, gameWidth, gameHeight);
+
+				// Water sprite (Background)
+				waterBackground = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'water');
+
+				brownBoxTextBg = game.add.sprite(gameWidth - 255, 15, 'brownBoxTextBg');
+				brownBoxTextBg = game.add.sprite(15, 15, 'brownBoxTextBg');
+
+				damageText = game.add.text(gameWidth - 235, 25, damageTextString + damagePercentage + '%');
+				damageText.font = 'Sunshiney';
+				damageText.fontSize = 28;
+				damageText.fill = '#FFFFFF';
+
+				scoreText = game.add.text(35, 25, scoreString + score);
+				scoreText.font = 'Sunshiney';
+				scoreText.fontSize = 28;
+				scoreText.fill = '#FFFFFF';
+
+				// Calico Jack's Ship (Player)
+				calicoJack = game.add.sprite(game.world.centerX, gameHeight - 60, 'player');
+				calicoJack.anchor.setTo(0.5, 0.5);
+				game.physics.arcade.enable(calicoJack);
+				calicoJack.health = 5;
+				calicoJack.body.collideWorldBounds = true;
+
+				cannonTimeImg = game.add.sprite(15, gameHeight - 55, 'cannonTime', 3);
+
+				// Cannons for Calico Jack
+				cannons = game.add.group();
+				cannons.enableBody = true;
+				cannons.physicsBodyType = Phaser.Physics.ARCADE;
+				cannons.createMultiple(30, 'cannonball');
+				cannons.setAll('anchor.x', 0.5);
+				cannons.setAll('anchor.y', 5);
+				cannons.setAll('outOfBoundsKill', true);
+				cannons.setAll('checkWorldBounds', true);
+
+				// The enemy's cannon balls
+				enemyCannons = game.add.group();
+				enemyCannons.enableBody = true;
+				enemyCannons.physicsBodyType = Phaser.Physics.ARCADE;
+				enemyCannons.createMultiple(30, 'cannonball');
+				enemyCannons.setAll('anchor.x', -3);
+				enemyCannons.setAll('anchor.y', -7);
+				enemyCannons.setAll('outOfBoundsKill', true);
+				enemyCannons.setAll('checkWorldBounds', true);
+
+				// Pirate Hunter's Ships (Enemy)
+				createPirateHunters();
+
+				//  An explosion effect
+				boomEffects = game.add.group();
+				boomEffects.createMultiple(30, 'boom');
+				boomEffects.forEach(setupPirateHunter, this);
+
+				// Creating the movement
+				cursors = game.input.keyboard.createCursorKeys();
+				fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+			},
+			update: function () {
+				// Execute Water Effect
+				waterBackground.tilePosition.x += 0.5;
+				waterBackground.tilePosition.y += 0.5;
+
+				pirateHunters.forEach(checkPos, this);
+
+				scoreText.setText(scoreString + score);
+
+				if (calicoJack.alive) {
+					calicoJack.body.velocity.setTo(0, 0);
+					if (cursors.left.isDown) {
+						calicoJack.body.velocity.x = -200;
+						calicoJack.angle = 0;
+					} else if (cursors.right.isDown) {
+						calicoJack.body.velocity.x = 200;
+						calicoJack.angle = 180;
+					}
+
+					if (fireButton.isDown) {
+						fireCannon();
+					}
+
+					if (game.time.now > firingTimer) {
+						enemyFiresCannons();
+					}
+
+					game.physics.arcade.overlap(cannons, pirateHunters, hitPirateHunters, null, this);
+					game.physics.arcade.overlap(enemyCannons, calicoJack, enemyHitsJack, null, this);
+				}
+			}
+		}
+
+		function setupPirateHunter(ship) {
+			ship.anchor.x = 0.5;
+			ship.anchor.y = 0.5;
+			ship.animations.add('boom');
+		}
+
+		function createPirateHunters() {
+			pirateHunters = game.add.physicsGroup();
+
+			let y = 130;
+
+			for (let i = 0; i < 4; i++) {
+				const pirateHunter = pirateHunters.create(game.world.randomX, y, 'enemy');
+				pirateHunter.anchor.setTo(0.5, 0.5);
+				game.physics.arcade.enable(pirateHunter);
+				pirateHunter.body.collideWorldBounds = true;
+				pirateHunter.body.velocity.x = game.rnd.between(80, 200);
+				pirateHunter.angle = 180;
+				pirateHunter.health = 3;
+				y += 75;
+			}
+		}
+
+		function enemyFiresCannons() {
+			//  Grab the first bullet we can from the pool
+			enemyCannonBall = enemyCannons.getFirstExists(false);
+			livingEnemies.length = 0;
+
+			pirateHunters.forEachAlive(function (pirateHunter) {
+				// put every living enemy in an array
+				livingEnemies.push(pirateHunter);
+				score = livingEnemies.length;
+			});
+
+			if (enemyCannonBall && livingEnemies.length > 0) {
+				let random = game.rnd.integerInRange(0, livingEnemies.length - 1);
+				// randomly select one of them
+				let shooter = livingEnemies[random];
+				// And fire the bullet from this enemy
+				enemyCannonBall.reset(shooter.body.x, shooter.body.y);
+
+				game.physics.arcade.moveToObject(enemyCannonBall, calicoJack, 120);
+				firingTimer = game.time.now + 2000;
+			}
+		}
+
+		function checkPos(pirateHunter) {
+			if (pirateHunter.x > (gameWidth - 65)) {
+				pirateHunter.body.velocity.x = game.rnd.between(-80, -200);
+				pirateHunter.angle = 0;
+			} else if (pirateHunter.x < 65) {
+				pirateHunter.body.velocity.x = game.rnd.between(80, 200);
+				pirateHunter.angle = 180;
+			}
+		}
+
+		function fireCannon() {
+			//  To avoid them being allowed to fire too fast we set a time limit
+			if (game.time.now > cannonTime) {
+				//  Grab the first cannon ball we can from the pool
+				cannon = cannons.getFirstExists(false);
+
+				if (cannon) {
+					//  And fire it
+					cannon.reset(calicoJack.x, calicoJack.y + 8);
+					cannon.body.velocity.y = -400;
+					cannonTime = game.time.now + 1500;
+					cannonTimeImg.animations.add('cannonTime');
+					cannonTimeImg.animations.play('cannonTime', 2.4, false);
+				}
+			}
+		}
+
+		function hitPirateHunters(cannonball, pirateHunter) {
+			cannonball.kill();
+			pirateHunter.damage(1);
+
+			if (pirateHunter.health == 2) {
+				pirateHunter.frame = 1;
+			} else if (pirateHunter.health == 1) {
+				pirateHunter.frame = 2;
+			} else {
+				//  Decrease the number of ships left
+				score--
+				scoreText.text = scoreString + score;
+				if (score === 0) {
+					game.state.start('WinState');
+				}
+			}
+
+			//  And create an explosion :)
+			const boomEffect = boomEffects.getFirstExists(false);
+			boomEffect.reset(pirateHunter.body.x + 50, pirateHunter.body.y + 30);
+			boomEffect.play('boom', 10, false, true);
+		}
+
+		function enemyHitsJack(calicoJack, cannonball) {
+			cannonball.kill();
+			calicoJack.damage(1);
+
+			//  Increase the Damage Taken
+			damagePercentage += 20;
+			damageText.text = damageTextString + damagePercentage + '%';
+
+			if (calicoJack.health == 3) {
+				calicoJack.frame = 1;
+			} else if (calicoJack.health == 1) {
+				calicoJack.frame = 2;
+			} else if (calicoJack.health == 0) {
+				enemyCannons.callAll('kill');
+				game.state.start('GameOver');
+			}
+
+			//  And create an explosion :)
+			const boomEffect = boomEffects.getFirstExists(false);
+			boomEffect.reset(calicoJack.body.x + 50, calicoJack.body.y + 30);
+			boomEffect.play('boom', 10, false, true);
+		}
+
+		CalicoJackGame.GameOver = function (game) {};
+
+		let gameOverText;
+		let gameOverTextStartAgain;
+
+		CalicoJackGame.GameOver.prototype = {
+			create: function () {
+				gameOverText = game.add.text(game.world.centerX, game.world.centerY - 40, 'Game Over');
+				gameOverText.anchor.setTo(0.5, 0.5);
+				gameOverText.font = 'Shadows Into Light Two';
+				gameOverText.fontSize = 48;
+				gameOverText.fill = '#FFFFFF';
+
+				gameOverTextStartAgain = game.add.text(game.world.centerX, game.world.centerY + 40,
+					'Press Spacebar to try again');
+				gameOverTextStartAgain.anchor.setTo(0.5, 0.5);
+				gameOverTextStartAgain.font = 'Shadows Into Light Two';
+				gameOverTextStartAgain.fontSize = 28;
+				gameOverTextStartAgain.fill = '#FFFFFF';
+
+				creditText = game.add.text(game.world.centerX, gameHeight - 16, 'All game assets downloaded from kenney.nl', {
+					fill: '#FFFFFF',
+					font: 'Arial',
+					fontSize: '14px'
+				});
+				creditText.anchor.setTo(0.5, 0.5);
+
+				startButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+			},
+			update: function () {
+				if (startButton.isDown) {
+					game.state.start('Game');
+				}
+			}
+		}
+
+		CalicoJackGame.WinState = function (game) {};
+
+		let winStateText;
+		let winStateTextStartAgain;
+
+		CalicoJackGame.WinState.prototype = {
+			create: function () {
+				winStateText = game.add.text(game.world.centerX, game.world.centerY - 40, 'You Won!');
+				winStateText.anchor.setTo(0.5, 0.5);
+				winStateText.font = 'Shadows Into Light Two';
+				winStateText.fontSize = 48;
+				winStateText.fill = '#FFFFFF';
+
+				winStateTextStartAgain = game.add.text(game.world.centerX, game.world.centerY + 40,
+					'Press Spacebar to try again');
+				winStateText.anchor.setTo(0.5, 0.5);
+				winStateTextStartAgain.font = 'Shadows Into Light Two';
+				winStateTextStartAgain.fontSize = 28;
+				winStateTextStartAgain.fill = '#FFFFFF';
+
+				creditText = game.add.text(game.world.centerX, gameHeight - 16, 'All game assets downloaded from kenney.nl', {
+					fill: '#FFFFFF',
+					font: 'Arial',
+					fontSize: '14px'
+				});
+				creditText.anchor.setTo(0.5, 0.5);
+
+				startButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+			},
+			update: function () {
+				if (startButton.isDown) {
+					game.state.start('Game');
+				}
+			}
+		}
+
+		const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO);
+
+		game.state.add('Boot', CalicoJackGame.Boot);
+		game.state.add('Preloader', CalicoJackGame.Preloader);
+		game.state.add('StartScreen', CalicoJackGame.StartScreen);
+		game.state.add('Game', CalicoJackGame.Game);
+		game.state.add('GameOver', CalicoJackGame.GameOver);
+		game.state.add('WinState', CalicoJackGame.WinState);
+		game.state.start('Boot');
+	</script>
+</body>
+
+</html>
