@@ -89,7 +89,7 @@
 							game.state.start('StartScreen');
 						},
 						google: {
-							families: ['Shadows Into Light Two', 'Sunshiney']
+							families: ['Trade Winds']
 						}
 					};
 					WebFont.load(wfconfig);
@@ -113,7 +113,7 @@
 			create: function () {
 				startText = game.add.text(game.world.centerX, game.world.centerY / 2, 'Press "Spacebar" to Start');
 				startText.anchor.setTo(0.5, 0.5);
-				startText.font = 'Shadows Into Light Two';
+				startText.font = 'Trade Winds';
 				startText.fontSize = 40;
 				startText.fill = '#FFFFFF';
 
@@ -126,7 +126,7 @@
 				directionText = game.add.text(game.world.centerX, game.world.centerY - 70,
 					'Use keyboard arrows (left and right) to steer the Ship');
 				directionText.anchor.setTo(0.5, 0.5);
-				directionText.font = 'Shadows Into Light Two';
+				directionText.font = 'Trade Winds';
 				directionText.fontSize = 24;
 				directionText.fill = '#FFFFFF';
 
@@ -135,7 +135,7 @@
 
 				directionText = game.add.text(game.world.centerX, game.world.centerY + 90, 'Use spacebar to fire the Cannons');
 				directionText.anchor.setTo(0.5, 0.5);
-				directionText.font = 'Shadows Into Light Two';
+				directionText.font = 'Trade Winds';
 				directionText.fontSize = 24;
 				directionText.fill = '#FFFFFF';
 
@@ -190,12 +190,12 @@
 				brownBoxTextBg = game.add.sprite(15, 15, 'brownBoxTextBg');
 
 				damageText = game.add.text(gameWidth - 235, 25, damageTextString + damagePercentage + '%');
-				damageText.font = 'Sunshiney';
+				damageText.font = 'Trade Winds';
 				damageText.fontSize = 28;
 				damageText.fill = '#FFFFFF';
 
 				scoreText = game.add.text(35, 25, scoreString + score);
-				scoreText.font = 'Sunshiney';
+				scoreText.font = 'Trade Winds';
 				scoreText.fontSize = 28;
 				scoreText.fill = '#FFFFFF';
 
@@ -428,14 +428,14 @@
 			create: function () {
 				gameOverText = game.add.text(game.world.centerX, game.world.centerY - 40, 'Game Over');
 				gameOverText.anchor.setTo(0.5, 0.5);
-				gameOverText.font = 'Shadows Into Light Two';
+				gameOverText.font = 'Trade Winds';
 				gameOverText.fontSize = 48;
 				gameOverText.fill = '#FFFFFF';
 
 				gameOverTextStartAgain = game.add.text(game.world.centerX, game.world.centerY + 40,
 					'Press Spacebar to try again');
 				gameOverTextStartAgain.anchor.setTo(0.5, 0.5);
-				gameOverTextStartAgain.font = 'Shadows Into Light Two';
+				gameOverTextStartAgain.font = 'Trade Winds';
 				gameOverTextStartAgain.fontSize = 28;
 				gameOverTextStartAgain.fill = '#FFFFFF';
 
@@ -468,14 +468,14 @@
 			create: function () {
 				winStateText = game.add.text(game.world.centerX, game.world.centerY - 40, 'You Won!');
 				winStateText.anchor.setTo(0.5, 0.5);
-				winStateText.font = 'Shadows Into Light Two';
+				winStateText.font = 'Trade Winds';
 				winStateText.fontSize = 48;
 				winStateText.fill = '#FFFFFF';
 
 				winStateTextStartAgain = game.add.text(game.world.centerX, game.world.centerY + 40,
 					'Press Spacebar to try again');
 				winStateTextStartAgain.anchor.setTo(0.5, 0.5);
-				winStateTextStartAgain.font = 'Shadows Into Light Two';
+				winStateTextStartAgain.font = 'Trade Winds';
 				winStateTextStartAgain.fontSize = 28;
 				winStateTextStartAgain.fill = '#FFFFFF';
 
