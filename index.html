@@ -60,6 +60,9 @@
 				game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
 				game.load.image('brownBoxTextBg', 'assets/buttonLong_brown.png');
 				game.load.spritesheet('cannonTime', 'assets/cannonTime.png', 55, 40);
+				game.load.image('arrow-left', 'assets/arrow-left.png');
+				game.load.image('arrow-right', 'assets/arrow-right.png');
+				game.load.image('spacebar-image', 'assets/spacebar-image.png');
 
 				this.load.onLoadComplete.add(this.loadComplete, this);
 			},
@@ -86,14 +89,39 @@
 		let startText;
 		let startButton;
 		let creditText;
+		let arrowLeft;
+		let arrowRight;
+		let directionText;
+		let spacebarImage;
 
 		CalicoJackGame.StartScreen.prototype = {
 			create: function () {
-				startText = game.add.text(game.world.centerX, game.world.centerY - 20, 'Press Spacebar to Start');
+				startText = game.add.text(game.world.centerX, game.world.centerY / 2, 'Press "Spacebar" to Start');
 				startText.anchor.setTo(0.5, 0.5);
 				startText.font = 'Shadows Into Light Two';
 				startText.fontSize = 40;
 				startText.fill = '#FFFFFF';
+
+				arrowLeft = game.add.sprite(game.world.centerX - 50, game.world.centerY, 'arrow-left');
+				arrowLeft.anchor.setTo(0.5, 0.5);
+
+				arrowRight = game.add.sprite(game.world.centerX + 50, game.world.centerY, 'arrow-right');
+				arrowRight.anchor.setTo(0.5, 0.5);
+
+				directionText = game.add.text(game.world.centerX, game.world.centerY - 70, 'Use keyboard arrows (left and right) to steer the Ship');
+				directionText.anchor.setTo(0.5, 0.5);
+				directionText.font = 'Shadows Into Light Two';
+				directionText.fontSize = 24;
+				directionText.fill = '#FFFFFF';
+
+				spacebarImage = game.add.sprite(game.world.centerX, game.world.centerY + 150, 'spacebar-image');
+				spacebarImage.anchor.setTo(0.5, 0.5);
+
+				directionText = game.add.text(game.world.centerX, game.world.centerY + 90, 'Use spacebar to fire the Cannons');
+				directionText.anchor.setTo(0.5, 0.5);
+				directionText.font = 'Shadows Into Light Two';
+				directionText.fontSize = 24;
+				directionText.fill = '#FFFFFF';
 
 				startButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
@@ -396,7 +424,7 @@
 
 				winStateTextStartAgain = game.add.text(game.world.centerX, game.world.centerY + 40,
 					'Press Spacebar to try again');
-				winStateText.anchor.setTo(0.5, 0.5);
+				winStateTextStartAgain.anchor.setTo(0.5, 0.5);
 				winStateTextStartAgain.font = 'Shadows Into Light Two';
 				winStateTextStartAgain.fontSize = 28;
 				winStateTextStartAgain.fill = '#FFFFFF';
