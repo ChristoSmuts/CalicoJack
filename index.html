@@ -377,6 +377,7 @@
 				if (score === 0) {
 					// once all the enemy ships are destroyed, the player wins
 					// start the Win State section
+					damagePercentage = 0;
 					game.state.start('WinState');
 				}
 			}
@@ -406,6 +407,7 @@
 				// once the player was hit 5 times = 100% damage.
 				// Kill player, and Start Game Over state
 				enemyCannons.callAll('kill');
+				damagePercentage = 0;
 				game.state.start('GameOver');
 			}
 
