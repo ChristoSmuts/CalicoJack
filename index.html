@@ -127,7 +127,7 @@
 					'Use keyboard arrows (left and right) to steer the Ship');
 				directionText.anchor.setTo(0.5, 0.5);
 				directionText.font = 'Trade Winds';
-				directionText.fontSize = 22;
+				directionText.fontSize = 24;
 				directionText.fill = '#FFFFFF';
 
 				spacebarImage = game.add.sprite(game.world.centerX, game.world.centerY + 150, 'spacebar-image');
@@ -136,7 +136,7 @@
 				directionText = game.add.text(game.world.centerX, game.world.centerY + 90, 'Use spacebar to fire the Cannons');
 				directionText.anchor.setTo(0.5, 0.5);
 				directionText.font = 'Trade Winds';
-				directionText.fontSize = 22;
+				directionText.fontSize = 24;
 				directionText.fill = '#FFFFFF';
 
 				startButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -189,14 +189,14 @@
 				brownBoxTextBg = game.add.sprite(gameWidth - 255, 15, 'brownBoxTextBg');
 				brownBoxTextBg = game.add.sprite(15, 15, 'brownBoxTextBg');
 
-				damageText = game.add.text(gameWidth - 235, 25, damageTextString + damagePercentage + '%');
+				damageText = game.add.text(gameWidth - 238, 30, damageTextString + damagePercentage + '%');
 				damageText.font = 'Trade Winds';
-				damageText.fontSize = 28;
+				damageText.fontSize = 22;
 				damageText.fill = '#FFFFFF';
 
-				scoreText = game.add.text(35, 25, scoreString + score);
+				scoreText = game.add.text(30, 30, scoreString + score);
 				scoreText.font = 'Trade Winds';
-				scoreText.fontSize = 28;
+				scoreText.fontSize = 22;
 				scoreText.fill = '#FFFFFF';
 
 				// Calico Jack's Ship (Player)
