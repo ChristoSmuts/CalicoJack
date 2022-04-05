@@ -1,0 +1,7 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/designbe/public_html/calico-jack
+    - /bin/cp -R assets $DEPLOYPATH
+    - /bin/cp index.html $DEPLOYPATH
+    - /bin/cp phaser.min.js $DEPLOYPATH
